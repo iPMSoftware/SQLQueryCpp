@@ -27,13 +27,11 @@ class SQLQuery {
 
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_constructible_v<std::string,T>,SQLQuery&>
-    //SQLQuery& 
     SELECT(T head, U... tail) {
         query_ += (select_started_ ? ", " : "SELECT ");
         select_started_ = true;
         query_ += std::string(head);
-        SELECT(tail...);
-        return *this;
+        return SELECT(tail...);
     }
 
     SQLQuery& SELECT() {

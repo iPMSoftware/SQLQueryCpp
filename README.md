@@ -12,3 +12,14 @@ I've decided to write this project in TDD way using GTest. In this way I can pra
 * GTest utilization
 
 When I will be happy with its status, then I will try to write something similar in Goolang.
+
+## Build 
+
+In SQLQueryCpp run:
+
+cmake -S . -B build 
+cmake --build build
+
+## Run tests
+
+./build/sql_query_test
