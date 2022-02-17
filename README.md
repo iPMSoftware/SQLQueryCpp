@@ -15,11 +15,12 @@ When I will be happy with its status, then I will try to write something similar
 
 ## Build 
 
-In SQLQueryCpp run:
+In SQLQueryCpp direectory run:
 
-cmake -S . -B build 
-cmake --build build
+`cmake -S . -B build`
+
+`cmake --build build`
 
 ## Run tests
 
-./build/sql_query_test
+`./build/sql_query_test`
