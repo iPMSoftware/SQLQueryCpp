@@ -82,7 +82,17 @@ TEST(SqlQueryTestFilteringRows,SimpleFilteringTextValues) {
     EXPECT_STREQ(cmd.c_str(),"SELECT * FROM test_db WHERE name = 'John'");
 }
 
-TEST(SqlQueryTestFilteringRows,CombiningFilters) {
+TEST(SqlQueryTestFilteringRows,CombiningFiltersAnd) {
     auto cmd = SQLQuery().SELECT("person").FROM("test_db").WHERE("age > 20").AND("height > 170").ToString();
     EXPECT_STREQ(cmd.c_str(),"SELECT person FROM test_db WHERE age > 20 AND height > 170");
+}
+
+TEST(SqlQueryTestFilteringRows,CombiningFiltersOr) {
+    auto cmd = SQLQuery().SELECT("person").FROM("test_db").WHERE("age > 20").OR("height > 170").ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT person FROM test_db WHERE age > 20 OR height > 170");
+}
+
+TEST(SqlQueryTestFilteringRows,CombiningFiltersAndOr) {
+    auto cmd = SQLQuery().SELECT("person").FROM("test_db").WHERE("age > 20",SQLQuery().OR("height > 170")).AND("age < 15",SQLQuery().OR("height < 150")).ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT person FROM test_db WHERE (age > 20 OR height > 170) AND (age < 15 OR height < 150)");
 }
