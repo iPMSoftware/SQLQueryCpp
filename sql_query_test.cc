@@ -61,3 +61,13 @@ TEST(SqlQueryTestSelectingColumns,SelectDistinctFromDatabase) {
     auto cmd = SQLQuery().SELECT().DISTINCT("name").FROM("test_db").ToString();
     EXPECT_STREQ(cmd.c_str(),"SELECT DISTINCT name FROM test_db");
 }
+
+TEST(SqlQueryTestSelectingColumns,Count) {
+    auto cmd = SQLQuery().SELECT().COUNT("name").FROM("test_db").ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT COUNT(name) FROM test_db");
+}
+
+TEST(SqlQueryTestSelectingColumns,CountDistinct) {
+    auto cmd = SQLQuery().SELECT().COUNT(SQLQuery().DISTINCT("name")).FROM("test_db").ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT COUNT(DISTINCT name) FROM test_db");
+}

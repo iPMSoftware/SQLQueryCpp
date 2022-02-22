@@ -53,6 +53,33 @@ class SQLQuery {
         return *this;
     }
 
+    template<typename T, typename... U>
+    typename std::enable_if_t<std::is_constructible_v<std::string,T>,SQLQuery&>
+    COUNT(T head ,U... tail) {
+        query_ += (count_started_ ? ", " : "COUNT(");
+        count_started_ = true;
+        query_ += std::string(head);
+        return COUNT(tail...);
+    }
+
+    template<typename T, typename... U>
+    typename std::enable_if_t<std::is_same_v<T, SQLQuery>,SQLQuery&>
+    COUNT(T head ,U... tail) {
+        query_ += (count_started_ ? ", " : "COUNT(");
+        count_started_ = true;
+        query_ += head.ToString();
+        return COUNT(tail...);
+    }
+
+    SQLQuery& COUNT() {
+        if(!count_started_) {
+            query_ += "COUNT";
+        }
+        query_ += std::string(") ");
+        count_started_ = false;
+        return *this;
+    }
+
     const std::string& ToString() {
         query_.erase(query_.length()-1);
         return query_;
@@ -60,6 +87,7 @@ class SQLQuery {
     private:
     std::string query_ {};
     bool select_started_ {false};
+    bool count_started_ {false};
 };
 
 
