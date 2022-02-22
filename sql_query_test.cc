@@ -71,3 +71,18 @@ TEST(SqlQueryTestSelectingColumns,CountDistinct) {
     auto cmd = SQLQuery().SELECT().COUNT(SQLQuery().DISTINCT("name")).FROM("test_db").ToString();
     EXPECT_STREQ(cmd.c_str(),"SELECT COUNT(DISTINCT name) FROM test_db");
 }
+
+TEST(SqlQueryTestFilteringRows,SimpleFilteringNumericValues) {
+    auto cmd = SQLQuery().SELECT("*").FROM("test_db").WHERE("age > 20").ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT * FROM test_db WHERE age > 20");
+}
+
+TEST(SqlQueryTestFilteringRows,SimpleFilteringTextValues) {
+    auto cmd = SQLQuery().SELECT("*").FROM("test_db").WHERE("name = 'John'").ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT * FROM test_db WHERE name = 'John'");
+}
+
+TEST(SqlQueryTestFilteringRows,CombiningFilters) {
+    auto cmd = SQLQuery().SELECT("person").FROM("test_db").WHERE("age > 20").AND("height > 170").ToString();
+    EXPECT_STREQ(cmd.c_str(),"SELECT person FROM test_db WHERE age > 20 AND height > 170");
+}

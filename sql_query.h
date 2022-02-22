@@ -80,6 +80,17 @@ class SQLQuery {
         return *this;
     }
 
+    SQLQuery& WHERE(const std::string& where) {
+        query_ += "WHERE " + where + " ";
+        return *this;
+    }
+
+    SQLQuery& AND(const std::string& param) {
+        query_ += "AND " + param + " ";
+        return *this;
+    }
+
+
     const std::string& ToString() {
         query_.erase(query_.length()-1);
         return query_;
