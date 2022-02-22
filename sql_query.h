@@ -1,9 +1,15 @@
 #include <iostream>
 #include <string>
+#include <map>
 
 class SQLQuery {
     public:
-    SQLQuery() = default;
+    SQLQuery() {
+        commands_started_["select"] = false;
+        commands_started_["count"] = false;
+        commands_started_["where"] = false;
+        commands_started_["and"] = false;
+    }
     SQLQuery& Create() {
         query_ += "CREATE ";
         return *this;
@@ -28,18 +34,18 @@ class SQLQuery {
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_constructible_v<std::string,T>,SQLQuery&>
     SELECT(T head, U... tail) {
-        query_ += (select_started_ ? ", " : "SELECT ");
-        select_started_ = true;
+        query_ += (commands_started_["select"] ? ", " : "SELECT ");
+        commands_started_["select"] = true;
         query_ += std::string(head);
         return SELECT(tail...);
     }
 
     SQLQuery& SELECT() {
-        if(!select_started_) {
+        if(!commands_started_["select"]) {
             query_ += "SELECT";
         }
         query_ += std::string(" ");
-        select_started_ = false;
+        commands_started_["select"] = false;
         return *this;
     }
 
@@ -56,8 +62,8 @@ class SQLQuery {
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_constructible_v<std::string,T>,SQLQuery&>
     COUNT(T head ,U... tail) {
-        query_ += (count_started_ ? ", " : "COUNT(");
-        count_started_ = true;
+        query_ += (commands_started_["where"] ? ", " : "COUNT(");
+        commands_started_["where"] = true;
         query_ += std::string(head);
         return COUNT(tail...);
     }
@@ -65,18 +71,18 @@ class SQLQuery {
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_same_v<T, SQLQuery>,SQLQuery&>
     COUNT(T head ,U... tail) {
-        query_ += (count_started_ ? ", " : "COUNT(");
-        count_started_ = true;
+        query_ += (commands_started_["where"] ? ", " : "COUNT(");
+        commands_started_["where"] = true;
         query_ += head.ToString();
         return COUNT(tail...);
     }
 
     SQLQuery& COUNT() {
-        if(!count_started_) {
+        if(!commands_started_["where"]) {
             query_ += "COUNT";
         }
         query_ += std::string(") ");
-        count_started_ = false;
+        commands_started_["where"] = false;
         return *this;
     }
 
@@ -91,8 +97,8 @@ class SQLQuery {
     typename std::enable_if_t<std::is_constructible_v<std::string,T>,SQLQuery&>
     WHERE(T head ,U... tail) {
         auto size = sizeof...(U);
-        query_ += (where_started_ ? " " : "WHERE (");
-        where_started_ = true;
+        query_ += (commands_started_["where"] ? " " : "WHERE (");
+        commands_started_["where"] = true;
         query_ += std::string(head);
         return WHERE(tail...);
     }
@@ -100,18 +106,18 @@ class SQLQuery {
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_same_v<T, SQLQuery>,SQLQuery&>
     WHERE(T head ,U... tail) {
-        query_ += (where_started_ ? " " : "WHERE (");
-        where_started_ = true;
+        query_ += (commands_started_["where"] ? " " : "WHERE (");
+        commands_started_["where"] = true;
         query_ += head.ToString();
         return WHERE(tail...);
     }
 
     SQLQuery& WHERE() {
-        if(!where_started_) {
+        if(!commands_started_["where"]) {
             query_ += "WHERE";
         }
         query_ += std::string(") ");
-        where_started_ = false;
+        commands_started_["where"] = false;
         return *this;
     }
 
@@ -125,8 +131,8 @@ class SQLQuery {
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_constructible_v<std::string,T>,SQLQuery&>
     AND(T head ,U... tail) {
-        query_ += (and_started_ ? " " : "AND (");
-        and_started_ = true;
+        query_ += (commands_started_["and"] ? " " : "AND (");
+        commands_started_["and"] = true;
         query_ += std::string(head);
         return AND(tail...);
     }
@@ -134,18 +140,18 @@ class SQLQuery {
     template<typename T, typename... U>
     typename std::enable_if_t<std::is_same_v<T, SQLQuery>,SQLQuery&>
     AND(T head ,U... tail) {
-        query_ += (and_started_ ? " " : "AND (");
-        and_started_ = true;
+        query_ += (commands_started_["and"] ? " " : "AND (");
+        commands_started_["and"] = true;
         query_ += head.ToString();
         return AND(tail...);
     }
 
     SQLQuery& AND() {
-        if(!and_started_) {
+        if(!commands_started_["and"]) {
             query_ += "WHERE";
         }
         query_ += std::string(") ");
-        and_started_ = false;
+        commands_started_["and"] = false;
         return *this;
     }
 
@@ -160,10 +166,8 @@ class SQLQuery {
     }
     private:
     std::string query_ {};
-    bool select_started_ {false};
-    bool count_started_ {false};
-    bool where_started_ {false};
-    bool and_started_ {false};
+
+    std::map<std::string,bool> commands_started_ {};
 };
 
 
